@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api")
 public class StudentController {
@@ -26,7 +27,7 @@ public class StudentController {
     }
 
     // get student by id rest api
-    @GetMapping("/students/{id}")
+    @GetMapping("/student/{id}")
     public ResponseEntity<Student> getStudentById(@PathVariable Long id) {
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Student not exist with id :" + id));
@@ -46,7 +47,7 @@ public class StudentController {
     }
 
     // update student rest api
-    @PutMapping("/students/{id}")
+    @PutMapping("/student/{id}")
     public ResponseEntity<Student> updateStudent(@PathVariable Long id, @RequestBody Student studentDetails){
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Student not exist with id :" + id));
@@ -78,7 +79,7 @@ public class StudentController {
     }
 
     // delete student rest api
-    @DeleteMapping("/students/{id}")
+    @DeleteMapping("/student/{id}")
     public ResponseEntity<Map<String, Boolean>> deleteStudent(@PathVariable Long id){
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Student not exist with id :" + id));
