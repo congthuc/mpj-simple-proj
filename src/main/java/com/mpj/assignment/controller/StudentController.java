@@ -3,8 +3,11 @@ package com.mpj.assignment.controller;
 import com.mpj.assignment.exception.ResourceNotFoundException;
 import com.mpj.assignment.model.Student;
 import com.mpj.assignment.repository.StudentRepository;
+import com.mpj.assignment.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -17,12 +20,22 @@ import java.util.Map;
 @RequestMapping("/api")
 public class StudentController {
 
-   @Autowired
+
+    @Value("${pct.user.name:No Name}")
+    private String dbName;
+
+    @Autowired
+    StudentService studentService;
+
+    @Autowired
     StudentRepository studentRepository;
 
     // get all students
     @GetMapping("/students")
-    public List<Student> getAllStudents(){
+    public List<Student> getAllStudents(@RequestParam(name="firstName", required = false) String firstName){
+        if (StringUtils.hasLength(firstName)) {
+            return studentRepository.findByFirstName(firstName);
+        }
         return studentRepository.findAll();
     }
 
@@ -31,13 +44,15 @@ public class StudentController {
     public ResponseEntity<Student> getStudentById(@PathVariable Long id) {
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Student not exist with id :" + id));
+        // TODO
+        //  return not found instead
         return ResponseEntity.ok(student);
     }
 
     // create student rest api
     @PostMapping("/student")
-    public Student createStudent(@RequestBody Student student) {
-        return studentRepository.save(student);
+    public Student createStudent(@RequestBody Student student) throws Exception {
+        return studentService.addStudent(student);
     }
 
     // create student rest api
@@ -57,6 +72,9 @@ public class StudentController {
         student.setEmailId(studentDetails.getEmailId());
 
         Student updatedStudent = studentRepository.save(student);
+
+        // TODO
+        //  check student existing, return proper status if it's not.
         return ResponseEntity.ok(updatedStudent);
     }
 
@@ -87,6 +105,8 @@ public class StudentController {
         studentRepository.delete(student);
         Map<String, Boolean> response = new HashMap<>();
         response.put("deleted", Boolean.TRUE);
+        // TODO
+        //  return a list of updated students instead
         return ResponseEntity.ok(response);
     }
 
